@@ -2,14 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Exports\ApplicationsExport;
+use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ApplicationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $applications = Application::all();
+        $applications = Application::query();
+
+        if ($request->has('filter')) {
+            $filter = $request->input('filter');
+
+            if (isset($filter['title'])) {
+                $applications->where('title', 'like', '%' . $filter['title'] . '%');
+            }
+
+            if (isset($filter['description'])) {
+                $applications->where('description', 'like', '%' . $filter['description'] . '%');
+            }
+        }
+
+        $applications = $applications->get();
+
         return view('applications.index', compact('applications'));
     }
 
@@ -28,11 +48,21 @@ class ApplicationController extends Controller
         // Application::create($request->all());
         $user = auth()->user();
 
-        // Создаем новую заявку и привязываем ее к текущему пользователю
-        $user->applications()->create($request->all());
+        $application = new Application([
+            'title' => $request->title,
+            'description' => $request->description,
+        ]);
+        $user->applications()->save($application);
 
         return redirect()->route('applications.index')
             ->with('success', 'Application created successfully.');
+    }
+
+
+    public function show($id)
+    {
+        $application = Application::findOrFail($id);
+        return view('applications.show', compact('application'));
     }
 
     public function edit($id)
@@ -62,5 +92,10 @@ class ApplicationController extends Controller
 
         return redirect()->route('applications.index')
             ->with('success', 'Application deleted successfully.');
+    }
+
+    public function export()
+    {
+        return Excel::download(new ApplicationsExport, 'applications.xlsx');
     }
 }

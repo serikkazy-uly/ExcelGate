@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WelcomeController;
@@ -10,9 +11,9 @@ Route::get('/', [WelcomeController::class, 'welcome'])->name('welcome');
 
 // Маршруты для аутентификации и регистрации
 Route::get('login', [AuthController::class, 'login'])->name('login');
-Route::post('login', [AuthController::class, 'postLogin'])->name('auth.login'); 
+Route::post('login', [AuthController::class, 'postLogin'])->name('auth.login');
 Route::get('registration', [AuthController::class, 'registration'])->name('register');
-Route::post('register', [AuthController::class, 'postRegistration'])->name('auth.register'); 
+Route::post('register', [AuthController::class, 'postRegistration'])->name('auth.register');
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
 
@@ -22,20 +23,19 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 });
 
-// Защищенные маршруты
-Route::middleware(['auth'])->group(function () {
-    // Маршруты CRUD для заявок
-// Маршруты CRUD для заявок
-Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
-Route::get('/applications/create', [ApplicationController::class, 'create'])->name('applications.create');
-Route::post('/applications', [ApplicationController::class, 'store'])->name('applications.store');
-Route::get('/applications/{id}', [ApplicationController::class, 'show'])->name('applications.show');
-Route::get('/applications/{id}/edit', [ApplicationController::class, 'edit'])->name('applications.edit');
-Route::put('/applications/{id}', [ApplicationController::class, 'update'])->name('applications.update');
-Route::delete('/applications/{id}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
 
-    
-    // Дополнительные маршруты, если необходимо
+Route::middleware(['auth'])->group(function () {
+    Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/applications/create', [ApplicationController::class, 'create'])->name('applications.create');
+    Route::post('/applications', [ApplicationController::class, 'store'])->name('applications.store');
+    Route::get('/applications/{id}', [ApplicationController::class, 'show'])->name('applications.show');
+    Route::get('/applications/{id}/edit', [ApplicationController::class, 'edit'])->name('applications.edit');
+    Route::put('/applications/{id}', [ApplicationController::class, 'update'])->name('applications.update');
+    Route::delete('/applications/{id}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
+
+    Route::get('/applications/{id}', [ApplicationController::class, 'show'])->name('applications.show');
+    Route::get('/applications/export', [ApplicationController::class, 'export'])->name('applications.export');
+
 });
 
 Route::get('auth/home', [App\Http\Controllers\Auth\HomeController::class, 'index'])->name('auth.home')->middleware('isAdmin');
