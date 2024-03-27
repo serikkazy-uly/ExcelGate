@@ -3,62 +3,64 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Application;
 
 class ApplicationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $applications = Application::all();
+        return view('applications.index', compact('applications'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('applications.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+        ]);
+
+        // Application::create($request->all());
+        $user = auth()->user();
+
+        // Создаем новую заявку и привязываем ее к текущему пользователю
+        $user->applications()->create($request->all());
+
+        return redirect()->route('applications.index')
+            ->with('success', 'Application created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit($id)
     {
-        //
+        $application = Application::findOrFail($id);
+        return view('applications.edit', compact('application'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+        ]);
+
+        $application = Application::findOrFail($id);
+        $application->update($request->all());
+
+        return redirect()->route('applications.index')
+            ->with('success', 'Application updated successfully.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
-    }
+        $application = Application::findOrFail($id);
+        $application->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('applications.index')
+            ->with('success', 'Application deleted successfully.');
     }
 }

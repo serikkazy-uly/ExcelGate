@@ -1,7 +1,9 @@
 <?php
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
+
 
 
 Route::get('/', [WelcomeController::class, 'welcome'])->name('welcome');
@@ -20,10 +22,24 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 });
 
+// Защищенные маршруты
+Route::middleware(['auth'])->group(function () {
+    // Маршруты CRUD для заявок
+// Маршруты CRUD для заявок
+Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
+Route::get('/applications/create', [ApplicationController::class, 'create'])->name('applications.create');
+Route::post('/applications', [ApplicationController::class, 'store'])->name('applications.store');
+Route::get('/applications/{id}', [ApplicationController::class, 'show'])->name('applications.show');
+Route::get('/applications/{id}/edit', [ApplicationController::class, 'edit'])->name('applications.edit');
+Route::put('/applications/{id}', [ApplicationController::class, 'update'])->name('applications.update');
+Route::delete('/applications/{id}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
 
+    
+    // Дополнительные маршруты, если необходимо
+});
 
-// Route::get('auth/home', [App\Http\Controllers\Auth\HomeController::class, 'index'])->name('auth.home')->middleware('isAdmin');
-// Route::get('user/home', [App\Http\Controllers\User\HomeController::class, 'index'])->name('user.home');
+Route::get('auth/home', [App\Http\Controllers\Auth\HomeController::class, 'index'])->name('auth.home')->middleware('isAdmin');
+Route::get('user/home', [App\Http\Controllers\User\HomeController::class, 'index'])->name('user.home');
 
 
 // require __DIR__ . '/auth.php';
