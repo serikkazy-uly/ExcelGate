@@ -17,9 +17,9 @@ class AuthController extends Controller
         return view('auth.login');
     }  
 
-    public function registration()
+    public function register()
     {
-        return view('auth.registration');
+        return view('auth.register');
     }
       
     public function postLogin(Request $request)
@@ -35,11 +35,11 @@ class AuthController extends Controller
                         ->withSuccess('You have Successfully loggedin');
         }
   
-        return redirect("login")->withSuccess('Oppes! You have entered invalid credentials');
+        return redirect()->route('login')->withErrors(['email' => 'Invalid credentials']);
     }
       
  
-    public function postRegistration(Request $request)
+    public function postRegister(Request $request)
     {  
         $request->validate([
             'name' => 'required',
@@ -47,17 +47,20 @@ class AuthController extends Controller
             'password' => 'required|min:6',
         ]);
            
-        $data = $request->all();
-        $check = $this->create($data);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
          
-        return redirect("dashboard")->withSuccess('Great! You have Successfully loggedin');
+        return redirect()->route('dashboard')->withSuccess('Great! You have Successfully registered and logged in');
     }
     
 
     public function dashboard()
     {
         if(Auth::check()){
-            return view('dashboard');
+            return view('auth.dashboard');
         }
   
         return redirect("login")->withSuccess('Opps! You do not have access');

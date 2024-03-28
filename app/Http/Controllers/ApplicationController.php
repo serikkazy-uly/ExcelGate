@@ -117,7 +117,7 @@ class ApplicationController extends Controller
             ->with('success', 'Application deleted successfully.');
     }
 
-    public function importView()
+    public function importView(Request $request)
     {
         return view('importApp');
     }
@@ -133,31 +133,31 @@ class ApplicationController extends Controller
             'file' => 'required|file|mimes:xlsx',
         ]);
 
-        Excel::import(new ApplicationsImport, $request->file('file')->store('temp'));
+        Excel::import(new ApplicationsImport, $request->file('file')->store('files'));
 
         return redirect()->back()->with('success', 'Applications imported successfully.');
     }
 
 
+    public function exportApps(Request $request)
+    {
+        return Excel::download(new ApplicationsExport, 'applications.xlsx');
+    }
     // public function exportApps()
     // {
     //     return Excel::download(new ApplicationsExport, 'applications.xlsx');
+
+    //     return new ApplicationsExport;
+
+    //     $export = new ApplicationsExport();
+    //     $fileName = 'applications.xlsx';
+    //     $export->store($fileName, 'public');
+
+    //     $filePath = storage_path('app/public/' . $fileName);
+    //     $headers = [
+    //         'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    //     ];
+
+    //     return new BinaryFileResponse($filePath, 200, $headers);
     // }
-    public function exportApps()
-    {
-        return Excel::download(new ApplicationsExport, 'applications.xlsx');
-
-        return new ApplicationsExport;
-
-        $export = new ApplicationsExport();
-        $fileName = 'applications.xlsx';
-        $export->store($fileName, 'public');
-
-        $filePath = storage_path('app/public/' . $fileName);
-        $headers = [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ];
-
-        return new BinaryFileResponse($filePath, 200, $headers);
-    }
 }
