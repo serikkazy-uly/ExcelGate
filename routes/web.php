@@ -33,13 +33,29 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/applications/{id}', [ApplicationController::class, 'update'])->name('applications.update');
     Route::delete('/applications/{id}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
 
-    Route::get('/applications/{id}', [ApplicationController::class, 'show'])->name('applications.show');
     Route::get('/applications/export', [ApplicationController::class, 'export'])->name('applications.export');
+    Route::get('/applications/file-import-export', [ApplicationController::class, 'fileImportExport'])->name('applications.file-import-export');
+    Route::post('/applications/import', [ApplicationController::class, 'import'])->name('applications.import');
 
+
+
+    Route::get('/dashboard', function () {
+        return view('auth.dashboard');
+    })->name('dashboard');
 });
 
-Route::get('auth/home', [App\Http\Controllers\Auth\HomeController::class, 'index'])->name('auth.home')->middleware('isAdmin');
-Route::get('user/home', [App\Http\Controllers\User\HomeController::class, 'index'])->name('user.home');
+
+// Route::middleware('auth')->group(function () {
+//     Route::get('/applications/export', 'ApplicationController@export');
+//     Route::resource('/applications', 'ApplicationController');
+// });
+
+// Route::middleware('auth')->prefix('user')->group(function () {
+//     Route::resource('/applications', 'UserApplicationController');
+// });
+
+// Route::get('auth/home', [App\Http\Controllers\Auth\HomeController::class, 'index'])->name('auth.home')->middleware('isAdmin');
+// Route::get('user/home', [App\Http\Controllers\User\HomeController::class, 'index'])->name('user.home');
 
 
 // require __DIR__ . '/auth.php';

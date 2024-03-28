@@ -15,6 +15,7 @@ RUN docker-php-ext-enable exif
 RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-webp=/usr/include/  --with-jpeg=/usr/include/
 RUN docker-php-ext-install -j$(nproc) gd
 
+# Установка остальных зависимостей
 RUN apt install jpegoptim optipng pngquant gifsicle libavif-bin -y
 
 RUN apt-get install -y wget unzip curl
@@ -24,6 +25,3 @@ RUN mv composer.phar /usr/local/bin/composer
 COPY ./conf.d /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www
-
-
-

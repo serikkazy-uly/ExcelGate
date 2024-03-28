@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+// use Illuminate\Foundation\Application;
+use Illuminate\Notifications\Notifiable;
+// use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+use App\Models\Application;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -23,6 +27,10 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -41,10 +49,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-    ];
 
-    public function applications()
-    {
-        return $this->hasMany(Application::class);
-    }
+    ];
+    public $timestamps = false;
 }

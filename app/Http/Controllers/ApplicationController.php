@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\ApplicationsExport;
-use App\Http\Controllers\Controller;
-use App\Models\Application;
+use auth;
 use App\Models\User;
+use App\Models\Application;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use App\Exports\ApplicationsExport;
+use App\Imports\ApplicationsImport;
+use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ApplicationController extends Controller
 {
@@ -33,9 +36,22 @@ class ApplicationController extends Controller
         return view('applications.index', compact('applications'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         return view('applications.create');
+        // $request->validate([
+        //     'title' => 'required',
+        //     'description' => 'required',
+        // ]);
+        // $user = auth()->user();
+
+        // $user->applications()->create([
+        //     'title' => $request->title,
+        //     'description' => $request->description,
+        // ]);
+        
+        // return redirect()->route('applications.create')->with('success', 'Application created successfully.');
+        
     }
 
     public function store(Request $request)
@@ -45,15 +61,22 @@ class ApplicationController extends Controller
             'description' => 'required',
         ]);
 
-        // Application::create($request->all());
         $user = auth()->user();
+        // Debugging messages
+        // dd($request->all()); 
+        // dd($user); 
+        // dd($user->applications());
 
         $application = new Application([
             'title' => $request->title,
             'description' => $request->description,
         ]);
-        $user->applications()->save($application);
-
+        // $user->applications->save($application);
+        $user->applications()->create([
+            'title' => $request->title,
+            'description' => $request->description,
+        ]);
+        // dd($user);
         return redirect()->route('applications.index')
             ->with('success', 'Application created successfully.');
     }
@@ -94,8 +117,48 @@ class ApplicationController extends Controller
             ->with('success', 'Application deleted successfully.');
     }
 
-    public function export()
+    // public function export()
+    // {
+    //     return Excel::download(new ApplicationsExport, 'applications.xlsx');
+        
+        // return new ApplicationsExport;
+
+        // $export = new ApplicationsExport();
+        // $fileName = 'applications.xlsx';
+        // $export->store($fileName, 'public');
+    
+        // $filePath = storage_path('app/public/' . $fileName);
+        // $headers = [
+        //     'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        // ];
+    
+        // return new BinaryFileResponse($filePath, 200, $headers);
+    // }
+    public function fileImportExport()
     {
-        return Excel::download(new ApplicationsExport, 'applications.xlsx');
+        return view('applications.file-import-export');
     }
+   
+    /**
+     * Импортирует данные о заявках из файла Excel.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function import(Request $request) 
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx',
+        ]);
+
+        Excel::import(new ApplicationsImport, $request->file('file')->store('temp'));
+
+        return back()->with('success', 'Applications imported successfully.');
+    }
+
+
+    public function export() 
+    {
+        return Excel::download(new ApplicationsExport, 'applications.xlsx', \Maatwebsite\Excel\Excel::XLSX);
+    }    
 }
